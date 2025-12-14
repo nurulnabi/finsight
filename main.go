@@ -1,9 +1,13 @@
 package main
 
-import DB "github.com/nurulnabi/go-finsight/internal/database"
+import (
+	"github.com/joho/godotenv"
+	DB "github.com/nurulnabi/go-finsight/internal/database"
+)
 
 func main() {
 
+	godotenv.Load(".env")
 	var cfg DB.DBConfig = DB.SQLConfig{
 		DB_URI: "",
 	}

@@ -23,6 +23,7 @@ type SqlDatabase struct {
 // Returns:
 //   - *Errors.AppError: non-nil on failure
 func (sdb *SqlDatabase) Connect(dbConfig DBConfig) *Errors.AppError {
+	fmt.Println("SqlDatabase.Connect start")
 	sqlConfig, ok := dbConfig.(SQLConfig)
 	if !ok {
 		err := Errors.AppError{}.DbConnectionError("SqlDatabase.Connect SQL Config parsing failed")
@@ -43,6 +44,8 @@ func (sdb *SqlDatabase) Connect(dbConfig DBConfig) *Errors.AppError {
 
 		sdb.db = db
 		sdb.name = sqlConfig.NAME
+	} else {
+		fmt.Printf("SqlDatabase.Connect sqlConfig.DB_URI not found %v", sqlConfig.DB_URI)
 	}
 	return nil
 }
