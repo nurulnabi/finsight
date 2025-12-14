@@ -22,12 +22,12 @@ type SqlDatabase struct {
 //
 // Returns:
 //   - *Errors.AppError: non-nil on failure
-func (sdb *SqlDatabase) Connect(dbConfig DBConfig) *Errors.AppError {
+func (sdb *SqlDatabase) Connect(dbConfig DBConfig) error {
 	fmt.Println("SqlDatabase.Connect start")
 	sqlConfig, ok := dbConfig.(SQLConfig)
 	if !ok {
 		err := Errors.AppError{}.DbConnectionError("SqlDatabase.Connect SQL Config parsing failed")
-		fmt.Println(*err)
+		fmt.Println(err)
 		return err
 	}
 	if sqlConfig.DB_URI != "" {
@@ -57,7 +57,7 @@ func (sdb *SqlDatabase) Connect(dbConfig DBConfig) *Errors.AppError {
 //
 // Returns:
 //   - *Errors.AppError: non-nil on failure
-func (sdb *SqlDatabase) HealthCheck(ctx context.Context) *Errors.AppError {
+func (sdb *SqlDatabase) HealthCheck(ctx context.Context) error {
 	if err := sdb.db.PingContext(ctx); err != nil {
 		return Errors.AppError{}.DbConnectionError(err.Error())
 	}
@@ -65,7 +65,7 @@ func (sdb *SqlDatabase) HealthCheck(ctx context.Context) *Errors.AppError {
 	return nil
 }
 
-func (sdb *SqlDatabase) Close() *Errors.AppError {
+func (sdb *SqlDatabase) Close() error {
 	if err := sdb.db.Close(); err != nil {
 		fmt.Printf("SqlDatabase.Close failed %v", err)
 		return Errors.AppError{}.DbConnectionError(err.Error())

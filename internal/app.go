@@ -5,7 +5,6 @@ import (
 
 	"github.com/joho/godotenv"
 	DB "github.com/nurulnabi/go-finsight/internal/database"
-	Errors "github.com/nurulnabi/go-finsight/internal/errors"
 )
 
 type App struct {
@@ -13,9 +12,8 @@ type App struct {
 	DbManager *DB.DatabaseClientManager
 }
 
-func (app *App) Load() *Errors.AppError {
+func (app *App) Load() error {
 	godotenv.Load(".env")
-	app.Name = os.Getenv("APP_NAME")
 	var cfg DB.DBConfig = DB.SQLConfig{
 		DB_URI: os.Getenv("DB_URI"),
 	}

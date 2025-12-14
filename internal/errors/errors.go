@@ -1,21 +1,47 @@
 package errors
 
+import (
+	"log"
+	"runtime/debug"
+)
+
 type AppError struct {
-	Code      int    `json:"code"`
-	ErrorCode string `json:"error_code"`
-	Message   string `json:"message"`
 }
 
-func (e AppError) NotFoundError(msg string) *AppError {
-	e.Code = 404
-	e.ErrorCode = "NOT_FOUND"
-	e.Message = msg
-	return &e
+type APIError struct {
+	Code      int       `json:"code"`
+	ErrorCode ErrorCode `json:"error_code"`
+	Message   string    `json:"message"`
 }
 
-func (e AppError) DbConnectionError(msg string) *AppError {
-	e.Code = 500
-	e.ErrorCode = "DB_CONNECTION_FAILED"
-	e.Message = msg
-	return &e
+type ErrorCode string
+
+const (
+	ErrCodeNotFound     ErrorCode = "NOT_FOUND"
+	ErrCodeInvalidInput ErrorCode = "INVALID_INPUT"
+	ErrCodeInternal     ErrorCode = "INTERNAL_ERROR"
+)
+
+func (e AppError) NotFoundError(msg string) APIError {
+	return APIError{
+		Code:      404,
+		ErrorCode: ErrCodeNotFound,
+		Message:   msg,
+	}
+}
+
+func (e AppError) DbConnectionError(msg string) APIError {
+	return APIError{
+		Code:      500,
+		ErrorCode: ErrCodeInternal,
+		Message:   msg,
+	}
+}
+
+func (e *APIError) LogError() {
+	log.Printf("err=%v\nstack=%s", e, debug.Stack())
+}
+
+func (e APIError) Error() string {
+	return e.Message
 }

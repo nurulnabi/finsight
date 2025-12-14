@@ -11,9 +11,9 @@ import (
 
 type Database interface {
 	// Database this interface must be implemented by all the db providers check sql.go
-	Connect(cfg DBConfig) *Errors.AppError
-	HealthCheck(ctx context.Context) *Errors.AppError
-	Close() *Errors.AppError
+	Connect(cfg DBConfig) error
+	HealthCheck(ctx context.Context) error
+	Close() error
 }
 
 type DatabaseClientManager struct {
@@ -42,7 +42,7 @@ func (dc *DatabaseClientManager) Init(cfgs []DBConfig) {
 //
 // Returns:
 //   - *Errors.AppError: non-nil if the connection fails.
-func (dc *DatabaseClientManager) initSQL(cfg DBConfig) *Errors.AppError {
+func (dc *DatabaseClientManager) initSQL(cfg DBConfig) error {
 	var sqlConfig SQLConfig
 	b, _ := json.Marshal(cfg)
 	err := json.Unmarshal(b, &sqlConfig)
@@ -50,17 +50,26 @@ func (dc *DatabaseClientManager) initSQL(cfg DBConfig) *Errors.AppError {
 		fmt.Println(err)
 		return Errors.AppError{}.DbConnectionError("Invalid SQL config")
 	}
-	var errr *Errors.AppError
+	var errr error
 	var sqlDB Database = &SqlDatabase{}
 	fmt.Println("asdfads", sqlDB)
 	log.Printf("ptr address: %p", sqlDB)
 	errr = sqlDB.Connect(sqlConfig)
 	if errr != nil {
-		fmt.Println(errr.Message)
+		fmt.Println(errr.Error())
 		return errr
 	}
 	log.Printf("ptr address: %p", sqlDB)
 	fmt.Println("asdfad", sqlDB)
 	dc.DBClientsMap[sqlConfig.NAME] = sqlDB
 	return nil
+}
+
+func (dc *DatabaseClientManager) GetDBClient(name string) *Database {
+	client, ok := dc.DBClientsMap[name]
+	if !ok {
+		err := Errors.AppError{}.NotFoundError("DatabaseClientManager.GetDBClient client not found- " + name)
+		err.LogError()
+	}
+	return &client
 }
