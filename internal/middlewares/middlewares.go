@@ -5,11 +5,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	Utils "github.com/nurulnabi/go-finsight/internal/config"
 )
 
 func HealthCheck() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{
+		Utils.SendResponse(ctx, map[string]any{
 			"data": "ping successful",
 		})
 	}
