@@ -3,17 +3,21 @@ package internal
 import (
 	"os"
 
-	"github.com/joho/godotenv"
 	DB "github.com/nurulnabi/go-finsight/internal/database"
 )
 
 type App struct {
 	Name      string
+	AppType   string
 	DbManager *DB.DatabaseClientManager
+	server    Server
 }
 
 func (app *App) Load() error {
-	godotenv.Load(".env")
+	if app.AppType == "" {
+		app.AppType = "WEB_SERVER"
+	}
+
 	var cfg DB.DBConfig = DB.SQLConfig{
 		DB_URI: os.Getenv("DB_URI"),
 	}
@@ -23,5 +27,9 @@ func (app *App) Load() error {
 		DBClientsMap: make(map[string]DB.Database),
 	}
 	app.DbManager.Init(arr)
+
+	web := WebServer{}
+	app.server = &web
+	web.Init()
 	return nil
 }
